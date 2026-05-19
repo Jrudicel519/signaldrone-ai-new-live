@@ -4,6 +4,17 @@ import Stripe from "stripe";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+export async function GET() {
+  return NextResponse.json({
+    route: "/api/create-checkout-session",
+    status: "ok",
+    methodNeededForCheckout: "POST",
+    hasStripeSecretKey: Boolean(process.env.STRIPE_SECRET_KEY),
+    hasStripePriceId: Boolean(process.env.STRIPE_PRO_PLUS_PRICE_ID),
+    appUrl: process.env.NEXT_PUBLIC_APP_URL || null,
+  });
+}
+
 export async function POST() {
   try {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;

@@ -4,6 +4,16 @@ import Stripe from "stripe";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+export async function GET() {
+  return NextResponse.json({
+    route: "/api/stripe-webhook",
+    status: "ok",
+    methodNeededForStripe: "POST",
+    hasStripeSecretKey: Boolean(process.env.STRIPE_SECRET_KEY),
+    hasStripeWebhookSecret: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -28,9 +38,13 @@ export async function POST(req: NextRequest) {
     }
 
     const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+
     console.log("Stripe webhook received:", event.type);
 
-    return NextResponse.json({ received: true });
+    return NextResponse.json({
+      received: true,
+      eventType: event.type,
+    });
   } catch (error) {
     console.error("Stripe webhook error:", error);
     return NextResponse.json(
