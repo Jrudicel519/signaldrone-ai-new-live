@@ -1,90 +1,93 @@
-"use client";
-
 import Link from "next/link";
-import { SignInButton, useUser } from "@clerk/nextjs";
-import HeaderAuthButton from "./HeaderAuthButton";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
 export default function HomePage() {
-  const { isLoaded, isSignedIn } = useUser();
-
-  if (!isLoaded) {
-    return (
-      <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-slate-800 bg-slate-900/70 p-6 text-slate-300">
-          Loading...
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-      <div className="mx-auto max-w-4xl space-y-8">
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-8 shadow-2xl">
-          <div className="mb-6">
-            <img
-              src="/signaldrone-hero.png"
-              alt="Signal Drone AI hero banner"
-              className="w-full rounded-2xl border border-cyan-500/20 shadow-2xl shadow-cyan-500/10"
-            />
+    <main className="min-h-screen bg-[#050816] text-white">
+      <section className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
+        <header className="flex items-center justify-between">
+          <div className="text-xl font-bold text-cyan-300">Signal Drone AI</div>
+
+          <div className="flex items-center gap-3">
+            <SignInButton mode="modal">
+              <button className="rounded-xl border border-cyan-400/40 px-4 py-2 text-sm font-semibold text-cyan-200">
+                Sign in
+              </button>
+            </SignInButton>
+
+            <SignUpButton mode="modal">
+              <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950">
+                Get started
+              </button>
+            </SignUpButton>
+
+            <UserButton />
+          </div>
+        </header>
+
+        <div className="grid flex-1 items-center gap-10 py-16 lg:grid-cols-2">
+          <div>
+            <div className="mb-5 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200">
+              Signal Drone AI V4
+            </div>
+
+            <h1 className="text-5xl font-black leading-tight md:text-6xl">
+              AI-powered crypto signal research dashboard.
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+              Signal Drone AI is being relaunched with cleaner sign-in, subscription access,
+              and paper-trading research signals. This platform is educational only and does
+              not place real trades or manage user funds.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/pricing"
+                className="rounded-2xl bg-cyan-400 px-6 py-3 font-bold text-slate-950 shadow-lg shadow-cyan-400/20"
+              >
+                View pricing
+              </Link>
+
+              <Link
+                href="/pro"
+                className="rounded-2xl border border-white/15 px-6 py-3 font-bold text-white"
+              >
+                Open Pro dashboard
+              </Link>
+            </div>
+
+            <p className="mt-5 text-sm text-slate-400">
+              Paper-trading only. Not financial advice.
+            </p>
           </div>
 
-          <p className="mb-3 inline-block rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-300">
-            Signal Drone AI V4
-          </p>
+          <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6 shadow-2xl">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/80 p-6">
+              <div className="mb-4 text-sm font-bold uppercase tracking-widest text-cyan-300">
+                Relaunch status
+              </div>
 
-          <h1 className="max-w-3xl text-4xl font-black tracking-tight text-white sm:text-6xl">
-            Sign in to view the paper-trading research dashboard.
-          </h1>
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <div className="text-sm text-slate-400">App</div>
+                  <div className="text-2xl font-black">Online</div>
+                </div>
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-            Signal Drone AI is an educational crypto signal dashboard for paper-trading research.
-            It does not place real trades, manage user funds, connect to exchange accounts, or provide financial advice.
-          </p>
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <div className="text-sm text-slate-400">Subscriptions</div>
+                  <div className="text-2xl font-black">Being reconnected</div>
+                </div>
 
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            {!isSignedIn ? (
-              <>
-                <SignInButton mode="modal" forceRedirectUrl="/free">
-                  <button className="rounded-xl bg-emerald-500 px-6 py-3 text-center font-bold text-slate-950 hover:bg-emerald-400">
-                    Sign In
-                  </button>
-                </SignInButton>
-
-                <Link
-                  href="/pricing"
-                  className="rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-6 py-3 text-center font-bold text-yellow-200 hover:bg-yellow-500/20"
-                >
-                  View Pricing
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/free"
-                  className="rounded-xl bg-emerald-500 px-6 py-3 text-center font-bold text-slate-950 hover:bg-emerald-400"
-                >
-                  Open Free Dashboard
-                </Link>
-
-                <Link
-                  href="/pro"
-                  className="rounded-xl border border-cyan-500/40 bg-cyan-500/10 px-6 py-3 text-center font-bold text-cyan-200 hover:bg-cyan-500/20"
-                >
-                  Open Pro Dashboard
-                </Link>
-
-                <HeaderAuthButton />
-              </>
-            )}
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <div className="text-sm text-slate-400">Signal data</div>
+                  <div className="text-2xl font-black">Paper-trading only</div>
+                </div>
+              </div>
+            </div>
           </div>
-        </section>
-
-        <section className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm leading-6 text-yellow-100">
-          <strong>Paper-only disclaimer:</strong> Signal Drone AI is for educational and informational paper-trading research only.
-          No real trades are executed. No user funds are managed. No profit guarantees. Not financial advice.
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }
