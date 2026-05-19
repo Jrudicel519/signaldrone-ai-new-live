@@ -32,7 +32,7 @@ export default function HomePage() {
             </Link>
 
             <Link
-              href="/signin"
+              href="/sign-in"
               className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white"
             >
               Sign in

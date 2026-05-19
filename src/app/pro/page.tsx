@@ -43,7 +43,7 @@ export default function ProPage() {
             </Link>
 
             <Link
-              href="/signin"
+              href="/sign-in"
               className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-black text-cyan-200"
             >
               Sign in
