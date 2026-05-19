@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
 export default function HomePage() {
   return (
@@ -9,19 +8,19 @@ export default function HomePage() {
           <div className="text-xl font-bold text-cyan-300">Signal Drone AI</div>
 
           <div className="flex items-center gap-3">
-            <SignInButton mode="modal">
-              <button className="rounded-xl border border-cyan-400/40 px-4 py-2 text-sm font-semibold text-cyan-200">
-                Sign in
-              </button>
-            </SignInButton>
+            <Link
+              href="/sign-in"
+              className="rounded-xl border border-cyan-400/40 px-4 py-2 text-sm font-semibold text-cyan-200"
+            >
+              Sign in
+            </Link>
 
-            <SignUpButton mode="modal">
-              <button className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950">
-                Get started
-              </button>
-            </SignUpButton>
-
-            <UserButton />
+            <Link
+              href="/sign-up"
+              className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950"
+            >
+              Get started
+            </Link>
           </div>
         </header>
 
@@ -76,7 +75,7 @@ export default function HomePage() {
 
                 <div className="rounded-2xl bg-white/5 p-4">
                   <div className="text-sm text-slate-400">Subscriptions</div>
-                  <div className="text-2xl font-black">Being reconnected</div>
+                  <div className="text-2xl font-black">Checkout reconnecting</div>
                 </div>
 
                 <div className="rounded-2xl bg-white/5 p-4">
