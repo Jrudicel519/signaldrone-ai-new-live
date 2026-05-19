@@ -5,37 +5,56 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import AccountBar from "@/components/AccountBar";
 
-const topSignals = [
-  {
-    rank: 1,
-    symbol: "BTC Preview",
-    confidence: "High",
-    direction: "Bullish",
-    reason: "Momentum remains strong while volatility is controlled.",
-  },
-  {
-    rank: 2,
-    symbol: "ETH Preview",
-    confidence: "Medium",
-    direction: "Bullish",
-    reason: "Trend strength is improving with steady market participation.",
-  },
-  {
-    rank: 3,
-    symbol: "SOL Preview",
-    confidence: "Medium",
-    direction: "Bullish",
-    reason: "Short-term momentum is positive but requires confirmation.",
-  },
-];
+type Signal = {
+  rank?: number;
+  symbol?: string;
+  direction?: string;
+  confidence?: number | string;
+  momentum_score?: number | string;
+  pattern_score?: number | string;
+  ml_score?: number | string;
+  risk?: string;
+  reason?: string;
+  bot_action?: string;
+};
+
+type PaperTrade = {
+  symbol?: string;
+  entry?: number | string;
+  current?: number | string;
+  unrealized_pl_percent?: number | string;
+  status?: string;
+};
+
+type ClosedStats = {
+  total_closed_trades?: number;
+  wins?: number;
+  losses?: number;
+  win_rate?: string | number;
+  average_gain?: string | number;
+  average_loss?: string | number;
+};
+
+type ProFeed = {
+  best_signal_now?: Signal;
+  top_10_signals?: Signal[];
+  open_paper_trades?: PaperTrade[];
+  closed_trade_stats?: ClosedStats;
+  watchlist_alerts?: Signal[];
+  last_scan?: string;
+};
 
 export default function ProPage() {
   const { user, isLoaded, isSignedIn } = useUser();
+
   const [checking, setChecking] = useState(true);
   const [active, setActive] = useState(false);
   const [status, setStatus] = useState("checking");
   const [message, setMessage] = useState("");
-  const [reconnecting, setReconnecting] = useState(false);
+
+  const [feed, setFeed] = useState<ProFeed | null>(null);
+  const [feedError, setFeedError] = useState("");
+  const [feedLoading, setFeedLoading] = useState(false);
 
   const email = user?.primaryEmailAddress?.emailAddress || "";
 
@@ -70,45 +89,42 @@ export default function ProPage() {
     }
   }
 
-  async function reconnectSubscription() {
-    if (!user?.id || !email) {
-      setMessage("Missing signed-in account email.");
-      return;
-    }
-
+  async function loadFeed() {
     try {
-      setReconnecting(true);
-      setMessage("");
+      setFeedLoading(true);
+      setFeedError("");
 
-      const res = await fetch("/api/reconnect-subscription", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          clerkUserId: user.id,
-          email,
-        }),
+      const res = await fetch("/api/pro-signals", {
+        cache: "no-store",
       });
 
-      const data = await res.json();
+      const json = await res.json();
 
-      setMessage(data.message || data.error || "Reconnect finished.");
-      setStatus(data.status || "unknown");
-
-      if (data.active) {
-        setActive(true);
+      if (!res.ok) {
+        throw new Error(json?.error || "Could not load Pro signal feed.");
       }
-    } catch {
-      setMessage("Reconnect failed.");
+
+      setFeed(json.data || null);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Could not load Pro signal feed.";
+      setFeedError(errorMessage);
     } finally {
-      setReconnecting(false);
+      setFeedLoading(false);
     }
   }
 
   useEffect(() => {
     checkSubscription();
   }, [isLoaded, isSignedIn, user?.id]);
+
+  useEffect(() => {
+    if (active) {
+      loadFeed();
+      const timer = setInterval(loadFeed, 30000);
+      return () => clearInterval(timer);
+    }
+  }, [active]);
 
   if (!isLoaded || checking) {
     return (
@@ -162,30 +178,30 @@ export default function ProPage() {
             <h1 className="text-5xl font-black">Pro subscription not connected.</h1>
 
             <div className="mt-6 rounded-2xl bg-black/30 p-5 text-left text-sm text-yellow-100">
-              <div><strong>Signed in as:</strong> {email || "No email found"}</div>
-              <div className="mt-2 break-all"><strong>Clerk user ID:</strong> {user?.id}</div>
-              <div className="mt-2"><strong>Status:</strong> {status}</div>
-              {message && <div className="mt-2"><strong>Message:</strong> {message}</div>}
+              <div>
+                <strong>Signed in as:</strong> {email || "No email found"}
+              </div>
+              <div className="mt-2 break-all">
+                <strong>Clerk user ID:</strong> {user?.id}
+              </div>
+              <div className="mt-2">
+                <strong>Status:</strong> {status}
+              </div>
+              {message && (
+                <div className="mt-2">
+                  <strong>Message:</strong> {message}
+                </div>
+              )}
             </div>
 
             <p className="mt-5 text-yellow-100">
-              If you already subscribed using this same email, click reconnect.
-              If you subscribed with a different email, sign in with that email or use that
-              email for Stripe.
+              This account does not currently show an active Pro subscription.
             </p>
 
             <div className="mt-8 grid gap-4">
-              <button
-                onClick={reconnectSubscription}
-                disabled={reconnecting}
-                className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 disabled:opacity-60"
-              >
-                {reconnecting ? "Reconnecting..." : "Reconnect my existing subscription"}
-              </button>
-
               <Link
                 href="/pricing"
-                className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-black text-cyan-200"
+                className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950"
               >
                 Subscribe with this signed-in account
               </Link>
@@ -196,12 +212,25 @@ export default function ProPage() {
               >
                 Sign in with a different account
               </Link>
+
+              <Link
+                href="/"
+                className="rounded-2xl border border-white/15 px-6 py-3 font-black text-white"
+              >
+                Free dashboard
+              </Link>
             </div>
           </div>
         </div>
       </main>
     );
   }
+
+  const best = feed?.best_signal_now;
+  const topSignals = feed?.top_10_signals || [];
+  const openTrades = feed?.open_paper_trades || [];
+  const stats = feed?.closed_trade_stats;
+  const alerts = feed?.watchlist_alerts || [];
 
   return (
     <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
@@ -221,78 +250,210 @@ export default function ProPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <AccountBar />
+
             <Link
               href="/"
               className="rounded-2xl border border-white/15 px-5 py-3 font-bold text-white"
             >
               Free dashboard
             </Link>
-
-            <Link
-              href="/pricing"
-              className="rounded-2xl bg-cyan-400 px-5 py-3 font-bold text-slate-950"
-            >
-              Pricing
-            </Link>
           </div>
         </header>
 
+        <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="text-sm text-slate-400">Feed source</div>
+              <div className="text-xl font-black">bot_output_v4/pro_signals.json</div>
+              {feed?.last_scan && (
+                <div className="mt-1 text-sm text-slate-400">
+                  Last scan: {feed.last_scan}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={loadFeed}
+              disabled={feedLoading}
+              className="rounded-2xl bg-cyan-400 px-5 py-3 font-black text-slate-950 disabled:opacity-60"
+            >
+              {feedLoading ? "Refreshing..." : "Refresh feed"}
+            </button>
+          </div>
+
+          {feedError && (
+            <div className="mt-4 rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-red-100">
+              {feedError}
+            </div>
+          )}
+        </section>
+
         <section className="mt-8 grid gap-5 md:grid-cols-4">
           <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6">
-            <div className="text-sm text-slate-400">Market Mode</div>
-            <div className="mt-2 text-3xl font-black text-cyan-200">Bullish</div>
+            <div className="text-sm text-slate-400">Best Signal</div>
+            <div className="mt-2 text-3xl font-black text-cyan-200">
+              {best?.symbol || "Loading"}
+            </div>
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6">
-            <div className="text-sm text-slate-400">Signal Type</div>
-            <div className="mt-2 text-3xl font-black">Long only</div>
+            <div className="text-sm text-slate-400">Direction</div>
+            <div className="mt-2 text-3xl font-black">
+              {best?.direction || "—"}
+            </div>
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6">
-            <div className="text-sm text-slate-400">Trading Mode</div>
-            <div className="mt-2 text-3xl font-black">Paper</div>
+            <div className="text-sm text-slate-400">Confidence</div>
+            <div className="mt-2 text-3xl font-black text-green-300">
+              {best?.confidence ?? "—"}
+            </div>
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6">
-            <div className="text-sm text-slate-400">Subscription</div>
-            <div className="mt-2 text-3xl font-black text-green-300">Active</div>
+            <div className="text-sm text-slate-400">Risk</div>
+            <div className="mt-2 text-3xl font-black text-yellow-200">
+              {best?.risk || "—"}
+            </div>
           </div>
         </section>
 
+        {best && (
+          <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
+            <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
+              Best Signal Right Now
+            </div>
+
+            <h2 className="mt-2 text-4xl font-black">{best.symbol}</h2>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-4">
+              <Metric label="ML Score" value={best.ml_score} />
+              <Metric label="Momentum" value={best.momentum_score} />
+              <Metric label="Pattern Score" value={best.pattern_score} />
+              <Metric label="Bot Action" value={best.bot_action} />
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-slate-950/80 p-5">
+              <div className="text-sm text-slate-400">Why this signal?</div>
+              <div className="mt-2 text-lg text-slate-100">{best.reason || "—"}</div>
+            </div>
+          </section>
+        )}
+
         <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
           <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
-            Pro Signals
+            Pro Top 10
           </div>
-          <h2 className="mt-2 text-3xl font-black">Top bullish setups</h2>
+          <h2 className="mt-2 text-3xl font-black">Top V4 bullish signal feed</h2>
 
           <div className="mt-6 space-y-4">
-            {topSignals.map((signal) => (
+            {topSignals.length === 0 && (
+              <div className="rounded-2xl bg-slate-950/80 p-5 text-slate-300">
+                No Pro signals loaded yet.
+              </div>
+            )}
+
+            {topSignals.map((signal, index) => (
               <div
-                key={signal.rank}
+                key={`${signal.symbol}-${index}`}
                 className="rounded-3xl border border-white/10 bg-slate-950/80 p-6"
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <div className="text-sm text-slate-400">#{signal.rank} Pro Signal</div>
+                    <div className="text-sm text-slate-400">
+                      #{signal.rank || index + 1} Signal
+                    </div>
                     <div className="mt-1 text-3xl font-black">{signal.symbol}</div>
                   </div>
 
                   <div className="text-right">
                     <div className="text-sm text-slate-400">Confidence</div>
                     <div className="text-2xl font-black text-cyan-300">
-                      {signal.confidence}
+                      {signal.confidence ?? "—"}
                     </div>
                   </div>
                 </div>
 
+                <div className="mt-5 grid gap-4 md:grid-cols-5">
+                  <Metric label="Direction" value={signal.direction} />
+                  <Metric label="ML" value={signal.ml_score} />
+                  <Metric label="Momentum" value={signal.momentum_score} />
+                  <Metric label="Pattern" value={signal.pattern_score} />
+                  <Metric label="Risk" value={signal.risk} />
+                </div>
+
                 <div className="mt-5 rounded-2xl bg-white/5 p-4">
-                  <div className="text-sm text-slate-400">Why this signal?</div>
-                  <div className="mt-1 text-slate-200">{signal.reason}</div>
+                  <div className="text-sm text-slate-400">Reason</div>
+                  <div className="mt-1 text-slate-200">{signal.reason || "—"}</div>
                 </div>
               </div>
             ))}
           </div>
         </section>
+
+        <section className="mt-8 grid gap-8 lg:grid-cols-2">
+          <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
+            <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
+              Open Paper Trades
+            </div>
+            <h2 className="mt-2 text-3xl font-black">Current simulated positions</h2>
+
+            <div className="mt-6 space-y-4">
+              {openTrades.length === 0 && (
+                <div className="rounded-2xl bg-slate-950/80 p-5 text-slate-300">
+                  No open paper trades.
+                </div>
+              )}
+
+              {openTrades.map((trade, index) => (
+                <div key={`${trade.symbol}-${index}`} className="rounded-2xl bg-slate-950/80 p-5">
+                  <div className="text-2xl font-black">{trade.symbol}</div>
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    <Metric label="Entry" value={trade.entry} />
+                    <Metric label="Current" value={trade.current} />
+                    <Metric label="Unrealized P/L %" value={trade.unrealized_pl_percent} />
+                  </div>
+                  <div className="mt-3 text-sm text-slate-400">
+                    Status: {trade.status || "—"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
+            <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
+              Closed Trade Stats
+            </div>
+            <h2 className="mt-2 text-3xl font-black">Paper performance</h2>
+
+            <div className="mt-6 grid gap-4">
+              <Metric label="Total Closed Trades" value={stats?.total_closed_trades} />
+              <Metric label="Wins" value={stats?.wins} />
+              <Metric label="Losses" value={stats?.losses} />
+              <Metric label="Win Rate" value={stats?.win_rate} />
+              <Metric label="Average Gain" value={stats?.average_gain} />
+              <Metric label="Average Loss" value={stats?.average_loss} />
+            </div>
+          </div>
+        </section>
+
+        {alerts.length > 0 && (
+          <section className="mt-8 rounded-3xl border border-yellow-400/20 bg-yellow-400/10 p-8">
+            <div className="text-sm font-bold uppercase tracking-widest text-yellow-200">
+              Watchlist Alerts
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {alerts.map((alert, index) => (
+                <div key={`${alert.symbol}-${index}`} className="rounded-2xl bg-black/30 p-4">
+                  <div className="text-xl font-black">{alert.symbol}</div>
+                  <div className="text-sm text-yellow-100">{alert.reason || alert.direction}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-8 rounded-3xl border border-red-400/30 bg-red-500/10 p-6 text-red-100">
           <strong>Important disclaimer:</strong> Signal Drone AI is for educational,
@@ -301,5 +462,22 @@ export default function ProPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function Metric({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number | undefined | null;
+}) {
+  return (
+    <div className="rounded-2xl bg-white/5 p-4">
+      <div className="text-sm text-slate-400">{label}</div>
+      <div className="mt-1 break-words text-xl font-black">
+        {value === undefined || value === null || value === "" ? "—" : value}
+      </div>
+    </div>
   );
 }
