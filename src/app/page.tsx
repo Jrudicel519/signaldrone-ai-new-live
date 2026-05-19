@@ -9,14 +9,14 @@ export default function HomePage() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/sign-in"
+              href="/signin"
               className="rounded-xl border border-cyan-400/40 px-4 py-2 text-sm font-semibold text-cyan-200"
             >
               Sign in
             </Link>
 
             <Link
-              href="/sign-up"
+              href="/pricing"
               className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950"
             >
               Get started
@@ -35,9 +35,9 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-              Signal Drone AI is being relaunched with cleaner sign-in, subscription access,
-              and paper-trading research signals. This platform is educational only and does
-              not place real trades or manage user funds.
+              Signal Drone AI provides educational crypto signal research for paper-trading.
+              It does not place trades, manage user funds, connect to exchange accounts, or
+              provide financial advice.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -52,7 +52,7 @@ export default function HomePage() {
                 href="/pro"
                 className="rounded-2xl border border-white/15 px-6 py-3 font-bold text-white"
               >
-                Open Pro dashboard
+                Open dashboard
               </Link>
             </div>
 
@@ -74,8 +74,8 @@ export default function HomePage() {
                 </div>
 
                 <div className="rounded-2xl bg-white/5 p-4">
-                  <div className="text-sm text-slate-400">Subscriptions</div>
-                  <div className="text-2xl font-black">Checkout reconnecting</div>
+                  <div className="text-sm text-slate-400">Checkout</div>
+                  <div className="text-2xl font-black">Stripe connected</div>
                 </div>
 
                 <div className="rounded-2xl bg-white/5 p-4">

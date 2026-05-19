@@ -9,14 +9,14 @@ export default function ProPage() {
             href="/"
             className="rounded-2xl border border-white/15 px-5 py-3 font-bold text-white"
           >
-            Back to Dashboard
+            Back home
           </Link>
 
           <Link
             href="/pricing"
             className="rounded-2xl border border-yellow-400/50 px-5 py-3 font-bold text-yellow-200"
           >
-            View Pricing
+            View pricing
           </Link>
         </div>
 
@@ -26,34 +26,27 @@ export default function ProPage() {
           </div>
 
           <h1 className="mt-5 text-5xl font-black leading-tight">
-            Sign in to access your signal dashboard.
+            Pro dashboard is being reconnected.
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-            Free users can view the limited market preview. Pro users will unlock bullish-only
-            signal research, ML score, reasoning, full Top 10, paper trades, and closed trade stats.
+            Checkout is active. Pro access and subscription syncing are being reconnected
+            during this relaunch. The app remains paper-trading only and educational.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href="/sign-in"
+              href="/pricing"
               className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950"
             >
-              Sign in
+              Subscribe
             </Link>
 
             <Link
-              href="/sign-up"
+              href="/signin"
               className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-black text-cyan-200"
             >
-              Create account
-            </Link>
-
-            <Link
-              href="/pricing"
-              className="rounded-2xl border border-yellow-400/40 px-6 py-3 font-black text-yellow-200"
-            >
-              Subscribe
+              Sign in
             </Link>
           </div>
 

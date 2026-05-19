@@ -28,8 +28,7 @@ export default function PricingPage() {
 
       window.location.href = data.url;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Checkout failed.";
+      const message = err instanceof Error ? err.message : "Checkout failed.";
       setError(message);
       setLoading(false);
     }
