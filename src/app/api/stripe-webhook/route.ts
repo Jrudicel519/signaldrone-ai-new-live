@@ -37,6 +37,8 @@ async function upsertSubscriptionFromStripe(
 ) {
   const supabase = getSupabase();
 
+  const subscriptionAny = subscription as any;
+
   const customerId =
     typeof subscription.customer === "string"
       ? subscription.customer
@@ -44,26 +46,28 @@ async function upsertSubscriptionFromStripe(
 
   const customer = await stripe.customers.retrieve(customerId);
 
-  let email: string | null = null;
+  let customerEmail: string | null = null;
 
   if (!customer.deleted) {
-    email = customer.email || null;
+    customerEmail = customer.email || null;
   }
 
+  const clerkUserId = subscription.metadata?.clerkUserId || null;
+  const metadataEmail = subscription.metadata?.email || null;
+  const email = metadataEmail || customerEmail;
   const priceId = subscription.items.data[0]?.price?.id || null;
 
-  const subscriptionAny = subscription as any;
-
   const currentPeriodEnd = subscriptionAny.current_period_end
-    ? new Date(subscriptionAny.current_period_end * 1000).toISOString()
+    ? subscriptionAny.current_period_end
     : null;
 
   const { error } = await supabase.from("subscriptions_v4").upsert(
     {
-      email,
+      clerk_user_id: clerkUserId,
       stripe_customer_id: customerId,
       stripe_subscription_id: subscription.id,
-      stripe_price_id: priceId,
+      price_id: priceId,
+      plan: "pro",
       status: subscription.status,
       current_period_end: currentPeriodEnd,
       updated_at: new Date().toISOString(),
@@ -76,6 +80,14 @@ async function upsertSubscriptionFromStripe(
   if (error) {
     throw error;
   }
+
+  console.log("Saved subscription to Supabase:", {
+    clerkUserId,
+    email,
+    customerId,
+    subscriptionId: subscription.id,
+    status: subscription.status,
+  });
 }
 
 export async function POST(req: NextRequest) {

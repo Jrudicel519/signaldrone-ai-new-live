@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 export const dynamic = "force-dynamic";
@@ -15,13 +15,12 @@ export async function GET() {
   });
 }
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     const priceId = process.env.STRIPE_PRO_PLUS_PRICE_ID;
     const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://signaldrone-ai-new-live.vercel.app";
+      process.env.NEXT_PUBLIC_APP_URL || "https://signaldroneai.com";
 
     if (!stripeSecretKey) {
       return NextResponse.json(
@@ -37,13 +36,35 @@ export async function POST() {
       );
     }
 
+    let clerkUserId = "";
+    let email = "";
+
+    try {
+      const body = await req.json();
+      clerkUserId = body?.clerkUserId || "";
+      email = body?.email || "";
+    } catch {
+      // No JSON body is okay.
+    }
+
     const stripe = new Stripe(stripeSecretKey);
+
+    const metadata = {
+      clerkUserId,
+      email,
+      plan: "pro",
+    };
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing`,
+      customer_email: email || undefined,
+      metadata,
+      subscription_data: {
+        metadata,
+      },
     });
 
     return NextResponse.json({ url: session.url });

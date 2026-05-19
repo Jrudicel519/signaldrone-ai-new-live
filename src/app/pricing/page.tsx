@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { user, isSignedIn } = useUser();
 
   async function startCheckout() {
     try {
@@ -14,6 +16,13 @@ export default function PricingPage() {
 
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clerkUserId: user?.id || "",
+          email: user?.primaryEmailAddress?.emailAddress || "",
+        }),
       });
 
       const data = await res.json();
@@ -52,6 +61,13 @@ export default function PricingPage() {
             Access bullish-only V4 signal research for paper-trading education.
           </p>
 
+          {!isSignedIn && (
+            <div className="mt-6 rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-4 text-yellow-100">
+              For best results, sign in before subscribing so your payment can be matched
+              to your account automatically.
+            </div>
+          )}
+
           <ul className="mt-8 space-y-3 text-slate-200">
             <li>• Bullish-only signal research</li>
             <li>• Best signal preview</li>
@@ -60,13 +76,24 @@ export default function PricingPage() {
             <li>• Educational use only</li>
           </ul>
 
-          <button
-            onClick={startCheckout}
-            disabled={loading}
-            className="mt-8 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 disabled:opacity-60"
-          >
-            {loading ? "Opening Stripe..." : "Subscribe with Stripe"}
-          </button>
+          <div className="mt-8 grid gap-3">
+            {!isSignedIn && (
+              <Link
+                href="/sign-in"
+                className="w-full rounded-2xl border border-cyan-400/40 px-6 py-4 text-center text-lg font-black text-cyan-200"
+              >
+                Sign in before subscribing
+              </Link>
+            )}
+
+            <button
+              onClick={startCheckout}
+              disabled={loading}
+              className="w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 disabled:opacity-60"
+            >
+              {loading ? "Opening Stripe..." : "Subscribe with Stripe"}
+            </button>
+          </div>
 
           {error && (
             <div className="mt-5 rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-red-200">
