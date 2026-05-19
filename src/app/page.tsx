@@ -18,6 +18,13 @@ export default function HomePage() {
 
           <div className="flex items-center gap-3">
             <Link
+              href="/sign-in"
+              className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Sign in
+            </Link>
+
+            <Link
               href="/pricing"
               className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950"
             >
@@ -29,13 +36,6 @@ export default function HomePage() {
               className="rounded-xl border border-cyan-400/40 px-4 py-2 text-sm font-semibold text-cyan-200"
             >
               Pro
-            </Link>
-
-            <Link
-              href="/sign-in"
-              className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white"
-            >
-              Sign in
             </Link>
           </div>
         </header>
@@ -52,10 +52,17 @@ export default function HomePage() {
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
             Signal Drone AI provides educational crypto signal research for paper-trading.
             The free dashboard shows a limited market preview. Pro unlocks deeper signal
-            research after subscription access is fully reconnected.
+            research after subscription access is active.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              href="/sign-in"
+              className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-bold text-cyan-200"
+            >
+              Sign in first
+            </Link>
+
             <Link
               href="/pricing"
               className="rounded-2xl bg-cyan-400 px-6 py-3 font-bold text-slate-950 shadow-lg shadow-cyan-400/20"

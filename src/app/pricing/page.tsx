@@ -7,9 +7,14 @@ import { useUser } from "@clerk/nextjs";
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { user, isSignedIn } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
 
   async function startCheckout() {
+    if (!isSignedIn || !user?.id) {
+      setError("Please sign in first so your subscription can connect to your account.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -20,8 +25,8 @@ export default function PricingPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          clerkUserId: user?.id || "",
-          email: user?.primaryEmailAddress?.emailAddress || "",
+          clerkUserId: user.id,
+          email: user.primaryEmailAddress?.emailAddress || "",
         }),
       });
 
@@ -61,10 +66,23 @@ export default function PricingPage() {
             Access bullish-only V4 signal research for paper-trading education.
           </p>
 
-          {!isSignedIn && (
+          {!isLoaded && (
+            <div className="mt-6 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-4 text-cyan-100">
+              Checking sign-in status...
+            </div>
+          )}
+
+          {isLoaded && !isSignedIn && (
             <div className="mt-6 rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-4 text-yellow-100">
-              For best results, sign in before subscribing so your payment can be matched
-              to your account automatically.
+              You need to sign in before subscribing so Stripe can connect your payment
+              to your Signal Drone AI account.
+            </div>
+          )}
+
+          {isLoaded && isSignedIn && (
+            <div className="mt-6 rounded-2xl border border-green-400/30 bg-green-400/10 p-4 text-green-100">
+              Signed in as {user?.primaryEmailAddress?.emailAddress || "your account"}.
+              You can subscribe now.
             </div>
           )}
 
@@ -77,10 +95,10 @@ export default function PricingPage() {
           </ul>
 
           <div className="mt-8 grid gap-3">
-            {!isSignedIn && (
+            {isLoaded && !isSignedIn && (
               <Link
                 href="/sign-in"
-                className="w-full rounded-2xl border border-cyan-400/40 px-6 py-4 text-center text-lg font-black text-cyan-200"
+                className="w-full rounded-2xl bg-cyan-400 px-6 py-4 text-center text-lg font-black text-slate-950"
               >
                 Sign in before subscribing
               </Link>
@@ -88,8 +106,8 @@ export default function PricingPage() {
 
             <button
               onClick={startCheckout}
-              disabled={loading}
-              className="w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 disabled:opacity-60"
+              disabled={loading || !isLoaded || !isSignedIn}
+              className="w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Opening Stripe..." : "Subscribe with Stripe"}
             </button>

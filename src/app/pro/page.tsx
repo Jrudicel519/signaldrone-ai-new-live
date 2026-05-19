@@ -127,14 +127,14 @@ export default function ProPage() {
                 href="/pricing"
                 className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950"
               >
-                Subscribe
+                Subscribe or reconnect payment
               </Link>
 
               <Link
-                href="/"
-                className="rounded-2xl border border-white/15 px-6 py-3 font-black text-white"
+                href="/sign-in"
+                className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-black text-cyan-200"
               >
-                Free dashboard
+                Sign in with a different account
               </Link>
             </div>
           </div>
