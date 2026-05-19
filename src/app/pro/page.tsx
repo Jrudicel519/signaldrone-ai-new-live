@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import AccountBar from "@/components/AccountBar";
 
 const topSignals = [
   {
@@ -218,7 +219,8 @@ export default function ProPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <AccountBar />
             <Link
               href="/"
               className="rounded-2xl border border-white/15 px-5 py-3 font-bold text-white"

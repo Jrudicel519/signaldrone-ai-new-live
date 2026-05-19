@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AccountBar from "@/components/AccountBar";
 
 const topMovers = [
   { name: "BTC Preview", move: "+2.4%", status: "Watching" },
@@ -31,12 +32,7 @@ export default function HomePage() {
               Upgrade
             </Link>
 
-            <Link
-              href="/pro"
-              className="rounded-xl border border-cyan-400/40 px-4 py-2 text-sm font-semibold text-cyan-200"
-            >
-              Pro
-            </Link>
+            <AccountBar />
           </div>
         </header>
 

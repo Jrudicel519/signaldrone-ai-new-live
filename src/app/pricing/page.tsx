@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import AccountBar from "@/components/AccountBar";
 
 export default function PricingPage() {
   const [loading, setLoading] = useState(false);
@@ -51,9 +52,12 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
       <div className="mx-auto max-w-4xl">
-        <Link href="/" className="text-cyan-300">
-          ← Back home
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Link href="/" className="text-cyan-300">
+            ← Back home
+          </Link>
+          <AccountBar />
+        </div>
 
         <div className="mt-10 rounded-3xl border border-cyan-400/30 bg-white/5 p-8">
           <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
