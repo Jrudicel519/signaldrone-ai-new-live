@@ -1,0 +1,31 @@
+{
+  "name": "ai-trading-signal-app-v4",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "dev:v4": "next dev --hostname 127.0.0.1",
+    "dev:safe": "NODE_OPTIONS='--max-old-space-size=1024' next dev --hostname 127.0.0.1"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^7.3.3",
+    "@supabase/supabase-js": "^2.105.4",
+    "next": "16.2.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "stripe": "^22.1.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.5",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5"
+  }
+}

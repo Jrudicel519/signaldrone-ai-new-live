@@ -1,0 +1,110 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# local secrets
+.env
+.env.local
+.env*.local
+
+# Next / node
+.next/
+node_modules/
+out/
+
+# local bot/app runtime data
+data/
+bot_output_v4/
+*.log
+
+# local backups
+local_backups/
+*backup*
+*-backup-*/
+
+# AI/editor/tool folders
+.aider*
+.agents/
+.aider-desk/
+.augment/
+.bob/
+.claude/
+.codartsdoor/
+.codebuddy/
+.codemaker/
+.codestudio/
+.commandode/
+.continue/
+.cortex/
+.crush/
+.devin/
+.factory/
+.forge/
+.goose/
+.hermes/
+.iflow/
+.junie/
+.kilocode/
+.kiro/
+.kode/
+.mcp/
+.mux/
+.neovate/
+.opendands/
+.pi/
+.pochi/
+.qoder/
+.qwen/
+.roo/
+.rovodev/
+.tabnine/
+.trae/
+.vibe/
+.windsurf/
+.zencoder/
+skills/
+skills-lock.json
+
+# old local bot output
+bot_output/
+
+# clerk configuration (can include secrets)
+/.clerk/
