@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 const topSignals = [
   {
@@ -24,22 +28,121 @@ const topSignals = [
   },
 ];
 
-const paperTrades = [
-  {
-    symbol: "BTC",
-    entry: "Paper entry pending",
-    stop: "ATR-based stop preview",
-    target: "Next resistance preview",
-  },
-  {
-    symbol: "ETH",
-    entry: "Paper entry pending",
-    stop: "ATR-based stop preview",
-    target: "Next resistance preview",
-  },
-];
-
 export default function ProPage() {
+  const { user, isLoaded, isSignedIn } = useUser();
+  const [checking, setChecking] = useState(true);
+  const [active, setActive] = useState(false);
+  const [status, setStatus] = useState("checking");
+
+  useEffect(() => {
+    async function checkSubscription() {
+      if (!isLoaded) return;
+
+      if (!isSignedIn || !user?.id) {
+        setActive(false);
+        setStatus("not_signed_in");
+        setChecking(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `/api/subscription-status?clerkUserId=${encodeURIComponent(user.id)}`
+        );
+
+        const data = await res.json();
+
+        setActive(Boolean(data.active));
+        setStatus(data.status || "unknown");
+      } catch {
+        setActive(false);
+        setStatus("error");
+      } finally {
+        setChecking(false);
+      }
+    }
+
+    checkSubscription();
+  }, [isLoaded, isSignedIn, user?.id]);
+
+  if (!isLoaded || checking) {
+    return (
+      <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
+        <div className="mx-auto flex min-h-screen max-w-3xl items-center justify-center text-center">
+          <div>
+            <h1 className="text-4xl font-black">Checking Pro access...</h1>
+            <p className="mt-4 text-slate-300">Please wait a moment.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
+        <div className="mx-auto flex min-h-screen max-w-3xl items-center justify-center text-center">
+          <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
+            <h1 className="text-5xl font-black">Sign in to access Pro.</h1>
+            <p className="mt-5 text-slate-300">
+              Please sign in first so Signal Drone AI can check your subscription.
+            </p>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/sign-in"
+                className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950"
+              >
+                Sign in
+              </Link>
+
+              <Link
+                href="/pricing"
+                className="rounded-2xl border border-white/15 px-6 py-3 font-black text-white"
+              >
+                View pricing
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!active) {
+    return (
+      <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
+        <div className="mx-auto flex min-h-screen max-w-3xl items-center justify-center text-center">
+          <div className="rounded-3xl border border-yellow-400/30 bg-yellow-400/10 p-8">
+            <h1 className="text-5xl font-black">Pro subscription required.</h1>
+            <p className="mt-5 text-yellow-100">
+              You are signed in, but this account does not currently show an active Pro subscription.
+            </p>
+            <p className="mt-3 text-sm text-yellow-200">
+              Current status: {status}
+            </p>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <Link
+                href="/pricing"
+                className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950"
+              >
+                Subscribe
+              </Link>
+
+              <Link
+                href="/"
+                className="rounded-2xl border border-white/15 px-6 py-3 font-black text-white"
+              >
+                Free dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
       <div className="mx-auto max-w-7xl">
@@ -51,6 +154,9 @@ export default function ProPage() {
             <h1 className="mt-2 text-4xl font-black md:text-5xl">
               V4 Pro Signal Dashboard
             </h1>
+            <p className="mt-3 text-cyan-200">
+              Pro access active ✅
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -70,12 +176,6 @@ export default function ProPage() {
           </div>
         </header>
 
-        <section className="mt-8 rounded-3xl border border-yellow-400/30 bg-yellow-400/10 p-5 text-yellow-100">
-          <strong>Relaunch notice:</strong> Sign-in and checkout are working. Subscription
-          syncing is being reconnected, so this Pro dashboard is temporarily visible while
-          we reconnect Stripe, Clerk, and Supabase access checks.
-        </section>
-
         <section className="mt-8 grid gap-5 md:grid-cols-4">
           <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6">
             <div className="text-sm text-slate-400">Market Mode</div>
@@ -93,24 +193,16 @@ export default function ProPage() {
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-6">
-            <div className="text-sm text-slate-400">Bot Data</div>
-            <div className="mt-2 text-3xl font-black text-yellow-200">Reconnecting</div>
+            <div className="text-sm text-slate-400">Subscription</div>
+            <div className="mt-2 text-3xl font-black text-green-300">Active</div>
           </div>
         </section>
 
         <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
-                Pro Signals
-              </div>
-              <h2 className="mt-2 text-3xl font-black">Top bullish setups</h2>
-            </div>
-
-            <div className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-200">
-              Preview mode during relaunch
-            </div>
+          <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
+            Pro Signals
           </div>
+          <h2 className="mt-2 text-3xl font-black">Top bullish setups</h2>
 
           <div className="mt-6 space-y-4">
             {topSignals.map((signal) => (
@@ -132,67 +224,12 @@ export default function ProPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl bg-white/5 p-4">
-                    <div className="text-sm text-slate-400">Direction</div>
-                    <div className="mt-1 text-xl font-black text-cyan-200">
-                      {signal.direction}
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl bg-white/5 p-4">
-                    <div className="text-sm text-slate-400">Why this signal?</div>
-                    <div className="mt-1 text-slate-200">{signal.reason}</div>
-                  </div>
+                <div className="mt-5 rounded-2xl bg-white/5 p-4">
+                  <div className="text-sm text-slate-400">Why this signal?</div>
+                  <div className="mt-1 text-slate-200">{signal.reason}</div>
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-8 lg:grid-cols-2">
-          <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
-            <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
-              Paper Trades
-            </div>
-            <h2 className="mt-2 text-3xl font-black">Open paper trade preview</h2>
-
-            <div className="mt-6 space-y-4">
-              {paperTrades.map((trade) => (
-                <div key={trade.symbol} className="rounded-2xl bg-slate-950/80 p-5">
-                  <div className="text-2xl font-black">{trade.symbol}</div>
-                  <div className="mt-3 space-y-2 text-sm text-slate-300">
-                    <div>Entry: {trade.entry}</div>
-                    <div>Stop: {trade.stop}</div>
-                    <div>Target: {trade.target}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
-            <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
-              Closed Trade Stats
-            </div>
-            <h2 className="mt-2 text-3xl font-black">Performance preview</h2>
-
-            <div className="mt-6 grid gap-4">
-              <div className="rounded-2xl bg-slate-950/80 p-5">
-                <div className="text-sm text-slate-400">Win Rate</div>
-                <div className="mt-1 text-3xl font-black">Reconnecting</div>
-              </div>
-
-              <div className="rounded-2xl bg-slate-950/80 p-5">
-                <div className="text-sm text-slate-400">Average Hold</div>
-                <div className="mt-1 text-3xl font-black">ATR-based</div>
-              </div>
-
-              <div className="rounded-2xl bg-slate-950/80 p-5">
-                <div className="text-sm text-slate-400">Risk Mode</div>
-                <div className="mt-1 text-3xl font-black">Paper only</div>
-              </div>
-            </div>
           </div>
         </section>
 
