@@ -33,35 +33,79 @@ export default function ProPage() {
   const [checking, setChecking] = useState(true);
   const [active, setActive] = useState(false);
   const [status, setStatus] = useState("checking");
+  const [message, setMessage] = useState("");
+  const [reconnecting, setReconnecting] = useState(false);
 
-  useEffect(() => {
-    async function checkSubscription() {
-      if (!isLoaded) return;
+  const email = user?.primaryEmailAddress?.emailAddress || "";
 
-      if (!isSignedIn || !user?.id) {
-        setActive(false);
-        setStatus("not_signed_in");
-        setChecking(false);
-        return;
-      }
+  async function checkSubscription() {
+    if (!isLoaded) return;
 
-      try {
-        const res = await fetch(
-          `/api/subscription-status?clerkUserId=${encodeURIComponent(user.id)}`
-        );
-
-        const data = await res.json();
-
-        setActive(Boolean(data.active));
-        setStatus(data.status || "unknown");
-      } catch {
-        setActive(false);
-        setStatus("error");
-      } finally {
-        setChecking(false);
-      }
+    if (!isSignedIn || !user?.id) {
+      setActive(false);
+      setStatus("not_signed_in");
+      setChecking(false);
+      return;
     }
 
+    try {
+      setChecking(true);
+
+      const res = await fetch(
+        `/api/subscription-status?clerkUserId=${encodeURIComponent(user.id)}`
+      );
+
+      const data = await res.json();
+
+      setActive(Boolean(data.active));
+      setStatus(data.status || "unknown");
+      setMessage(data.message || "");
+    } catch {
+      setActive(false);
+      setStatus("error");
+      setMessage("Could not check subscription.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function reconnectSubscription() {
+    if (!user?.id || !email) {
+      setMessage("Missing signed-in account email.");
+      return;
+    }
+
+    try {
+      setReconnecting(true);
+      setMessage("");
+
+      const res = await fetch("/api/reconnect-subscription", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clerkUserId: user.id,
+          email,
+        }),
+      });
+
+      const data = await res.json();
+
+      setMessage(data.message || data.error || "Reconnect finished.");
+      setStatus(data.status || "unknown");
+
+      if (data.active) {
+        setActive(true);
+      }
+    } catch {
+      setMessage("Reconnect failed.");
+    } finally {
+      setReconnecting(false);
+    }
+  }
+
+  useEffect(() => {
     checkSubscription();
   }, [isLoaded, isSignedIn, user?.id]);
 
@@ -114,25 +158,40 @@ export default function ProPage() {
       <main className="min-h-screen bg-[#050816] px-6 py-10 text-white">
         <div className="mx-auto flex min-h-screen max-w-3xl items-center justify-center text-center">
           <div className="rounded-3xl border border-yellow-400/30 bg-yellow-400/10 p-8">
-            <h1 className="text-5xl font-black">Pro subscription required.</h1>
+            <h1 className="text-5xl font-black">Pro subscription not connected.</h1>
+
+            <div className="mt-6 rounded-2xl bg-black/30 p-5 text-left text-sm text-yellow-100">
+              <div><strong>Signed in as:</strong> {email || "No email found"}</div>
+              <div className="mt-2 break-all"><strong>Clerk user ID:</strong> {user?.id}</div>
+              <div className="mt-2"><strong>Status:</strong> {status}</div>
+              {message && <div className="mt-2"><strong>Message:</strong> {message}</div>}
+            </div>
+
             <p className="mt-5 text-yellow-100">
-              You are signed in, but this account does not currently show an active Pro subscription.
-            </p>
-            <p className="mt-3 text-sm text-yellow-200">
-              Current status: {status}
+              If you already subscribed using this same email, click reconnect.
+              If you subscribed with a different email, sign in with that email or use that
+              email for Stripe.
             </p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <div className="mt-8 grid gap-4">
+              <button
+                onClick={reconnectSubscription}
+                disabled={reconnecting}
+                className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 disabled:opacity-60"
+              >
+                {reconnecting ? "Reconnecting..." : "Reconnect my existing subscription"}
+              </button>
+
               <Link
                 href="/pricing"
-                className="rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950"
+                className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-black text-cyan-200"
               >
-                Subscribe or reconnect payment
+                Subscribe with this signed-in account
               </Link>
 
               <Link
                 href="/sign-in"
-                className="rounded-2xl border border-cyan-400/40 px-6 py-3 font-black text-cyan-200"
+                className="rounded-2xl border border-white/15 px-6 py-3 font-black text-white"
               >
                 Sign in with a different account
               </Link>
@@ -155,7 +214,7 @@ export default function ProPage() {
               V4 Pro Signal Dashboard
             </h1>
             <p className="mt-3 text-cyan-200">
-              Pro access active ✅
+              Pro access active ✅ Signed in as {email}
             </p>
           </div>
 
