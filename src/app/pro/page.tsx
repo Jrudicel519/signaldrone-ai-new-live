@@ -53,6 +53,8 @@ export default function ProPage() {
   const [message, setMessage] = useState("");
 
   const [feed, setFeed] = useState<ProFeed | null>(null);
+  const [feedUpdatedAt, setFeedUpdatedAt] = useState<string>("");
+  const [feedSource, setFeedSource] = useState<string>("");
   const [feedError, setFeedError] = useState("");
   const [feedLoading, setFeedLoading] = useState(false);
 
@@ -105,6 +107,8 @@ export default function ProPage() {
       }
 
       setFeed(json.data || null);
+      setFeedUpdatedAt(json.updated_at || json.data?.last_scan || "");
+      setFeedSource(json.source || "unknown");
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Could not load Pro signal feed.";
@@ -263,13 +267,12 @@ export default function ProPage() {
         <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="text-sm text-slate-400">Feed source</div>
-              <div className="text-xl font-black">bot_output_v4/pro_signals.json</div>
-              {feed?.last_scan && (
-                <div className="mt-1 text-sm text-slate-400">
-                  Last scan: {feed.last_scan}
-                </div>
-              )}
+              <div className="text-sm text-slate-400">Live bot feed</div>
+              <div className="text-xl font-black">
+                {feedSource.includes("supabase") ? "Supabase live feed" : "Local fallback feed"}
+              </div>
+
+              <FreshnessBanner updatedAt={feedUpdatedAt} source={feedSource} />
             </div>
 
             <button
@@ -462,6 +465,58 @@ export default function ProPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function FreshnessBanner({
+  updatedAt,
+  source,
+}: {
+  updatedAt: string;
+  source: string;
+}) {
+  if (!updatedAt) {
+    return (
+      <div className="mt-3 rounded-2xl border border-yellow-400/30 bg-yellow-400/10 p-4 text-yellow-100">
+        Feed status unknown. No upload timestamp was found.
+      </div>
+    );
+  }
+
+  const uploadedTime = new Date(updatedAt);
+  const now = new Date();
+  const ageMs = now.getTime() - uploadedTime.getTime();
+  const ageMinutes = Math.max(0, Math.floor(ageMs / 60000));
+  const isFresh = ageMinutes <= 3;
+  const isSupabase = source.includes("supabase");
+
+  return (
+    <div
+      className={
+        isFresh
+          ? "mt-3 rounded-2xl border border-green-400/30 bg-green-400/10 p-4 text-green-100"
+          : "mt-3 rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-red-100"
+      }
+    >
+      <div className="text-lg font-black">
+        {isFresh ? "Data is fresh ✅" : "Data is stale ⚠️"}
+      </div>
+
+      <div className="mt-1 text-sm">
+        Last upload: {uploadedTime.toLocaleString()} — about {ageMinutes} minute
+        {ageMinutes === 1 ? "" : "s"} ago.
+      </div>
+
+      <div className="mt-1 text-sm">
+        Source: {isSupabase ? "Render → Supabase live feed" : "Local fallback file"}
+      </div>
+
+      {!isSupabase && (
+        <div className="mt-2 text-sm font-bold">
+          Warning: this is not reading the live Supabase feed yet.
+        </div>
+      )}
+    </div>
   );
 }
 
