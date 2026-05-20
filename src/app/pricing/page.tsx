@@ -127,6 +127,24 @@ export default function PricingPage() {
             Secure checkout powered by Stripe. Paper-trading only. Not financial advice.
           </p>
         </div>
+
+        <footer className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
+          <div className="flex flex-wrap justify-center gap-4">
+            <a href="/about" className="text-cyan-300 hover:text-cyan-200">
+              About Signal Drone AI
+            </a>
+            <a href="/free" className="text-slate-400 hover:text-white">
+              Free Dashboard
+            </a>
+            <a href="/pricing" className="text-slate-400 hover:text-white">
+              Pricing
+            </a>
+          </div>
+          <p className="mt-3">
+            Paper-trading research only. Not financial advice.
+          </p>
+        </footer>
+
       </div>
     </main>
   );
