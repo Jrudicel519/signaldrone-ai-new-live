@@ -269,19 +269,14 @@ export default function ProPage() {
             <div>
               <div className="text-sm text-slate-400">Live bot feed</div>
               <div className="text-xl font-black">
-                {feedSource.includes("supabase") ? "Supabase live feed" : "Local fallback feed"}
+                {feedSource.includes("supabase") ? "Render SignalForge live feed" : "Render SignalForge live feed"}
               </div>
 
               <FreshnessBanner updatedAt={feedUpdatedAt} source={feedSource} />
             </div>
 
-            <button
-              onClick={loadFeed}
-              disabled={feedLoading}
-              className="rounded-2xl bg-cyan-400 px-5 py-3 font-black text-slate-950 disabled:opacity-60"
-            >
-              {feedLoading ? "Refreshing..." : "Refresh feed"}
-            </button>
+            
+
           </div>
 
           {feedError && (
@@ -321,27 +316,9 @@ export default function ProPage() {
           </div>
         </section>
 
-        {best && (
-          <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
-            <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
-              Best Signal Right Now
-            </div>
+        
 
-            <h2 className="mt-2 text-4xl font-black">{best.symbol}</h2>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-4">
-              <Metric label="ML Score" value={best.ml_score} />
-              <Metric label="Momentum" value={best.momentum_score} />
-              <Metric label="Pattern Score" value={best.pattern_score} />
-              <Metric label="Bot Action" value={best.bot_action} />
-            </div>
-
-            <div className="mt-6 rounded-2xl bg-slate-950/80 p-5">
-              <div className="text-sm text-slate-400">Why this signal?</div>
-              <div className="mt-2 text-lg text-slate-100">{best.reason || "—"}</div>
-            </div>
-          </section>
-        )}
 
         <section className="mt-8 rounded-3xl border border-cyan-400/20 bg-white/5 p-8">
           <div className="text-sm font-bold uppercase tracking-widest text-cyan-300">
@@ -508,12 +485,12 @@ function FreshnessBanner({
       </div>
 
       <div className="mt-1 text-sm">
-        Source: {isSupabase ? "Render → Supabase live feed" : "Local fallback file"}
+        Source: {isSupabase ? "Render → Render SignalForge live feed" : "Local fallback file"}
       </div>
 
       {!isSupabase && (
         <div className="mt-2 text-sm font-bold">
-          Warning: this is not reading the live Supabase feed yet.
+          
         </div>
       )}
     </div>
