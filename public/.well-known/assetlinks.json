@@ -7,6 +7,7 @@
       "namespace": "android_app",
       "package_name": "com.signaldrone.app",
       "sha256_cert_fingerprints": [
+        "F4:8F:0A:3C:5F:21:98:BF:F3:10:72:49:96:DF:B2:E2:09:9D:C2:C3:6A:1D:D9:5C:FB:EA:5A:EF:F8:E1:0F:D8",
         "90:80:8E:32:4C:ED:5C:E1:51:84:58:B2:80:0D:9D:74:EF:C7:5B:6B:88:36:36:CD:34:B0:11:C7:16:B1:CB:22"
       ]
     }
