@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AccountBar from "@/components/AccountBar";
+import AppDisclaimer from "@/components/AppDisclaimer";
 
 export default function AboutPage() {
   return (
@@ -117,6 +118,8 @@ export default function AboutPage() {
           </Link>
         </section>
       </div>
+            <AppDisclaimer />
+
     </main>
   );
 }

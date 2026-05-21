@@ -57,6 +57,7 @@ import type { ReactNode } from "react";
 import AutoRefresh from "../AutoRefresh";
 import ProPreviewGate from '../ProPreviewGate';
 import FreeDashboardAccessGate from './../FreeDashboardAccessGate';
+import AppDisclaimer from "@/components/AppDisclaimer";
 export const dynamic = "force-dynamic";
 
 type FreeMarketPreview = {
@@ -495,7 +496,9 @@ export default async function Home({
         
       </section>
       
-      <footer className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
+              <AppDisclaimer />
+
+<footer className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
         <div className="flex flex-wrap justify-center gap-4">
           <a href="/about" className="text-cyan-300 hover:text-cyan-200">
             About Signal Drone AI

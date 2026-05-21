@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import AccountBar from "@/components/AccountBar";
+import AppDisclaimer from "@/components/AppDisclaimer";
 
 type Signal = {
   rank?: number;
@@ -441,7 +442,9 @@ export default function ProPage() {
           manage user funds, connect to exchange accounts, or provide financial advice.
         </section>
 
-        <footer className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
+                <AppDisclaimer />
+
+<footer className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
           <div className="flex flex-wrap justify-center gap-4">
             <a href="/about" className="text-cyan-300 hover:text-cyan-200">
               About Signal Drone AI
