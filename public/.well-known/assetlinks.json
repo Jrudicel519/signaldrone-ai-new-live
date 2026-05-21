@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.signaldrone.app",
+      "sha256_cert_fingerprints": [
+        "90:80:8E:32:4C:ED:5C:E1:51:84:58:B2:80:0D:9D:74:EF:C7:5B:6B:88:36:36:CD:34:B0:11:C7:16:B1:CB:22"
+      ]
+    }
+  }
+]
