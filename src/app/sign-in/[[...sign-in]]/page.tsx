@@ -17,7 +17,7 @@ export default function Page() {
           path="/sign-in"
           routing="path"
           signUpUrl="/sign-up"
-          fallbackRedirectUrl="/pro"
+          fallbackRedirectUrl="/"
           appearance={{
             elements: {
               rootBox: "mx-auto",
